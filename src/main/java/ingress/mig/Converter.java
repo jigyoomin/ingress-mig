@@ -144,10 +144,10 @@ public class Converter {
     private AnnotationMapping convertAnnotation(List<AnnotationMapping> list, String srcKey, String srcValue) {
         AnnotationMapping mapping = getOrCreateAnnotationMapping(list, srcKey, srcValue);
         
-        if (isIbmAnnotation(srcKey)) {
-            toNginxAnnotation(mapping);
-        } else if (SourceAnnotations.DELETE.contains(srcKey)) {
+        if (SourceAnnotations.DELETE.contains(srcKey)) {
             mapping.setType(TYPE.DELETE);
+        } else if (isIbmAnnotation(srcKey)) {
+            toNginxAnnotation(mapping);
         } else {
             mapping.setType(TYPE.IGNORE);
         }
@@ -257,6 +257,7 @@ public class Converter {
     private Ingress cleansing(Ingress ingress) {
         Map<String, String> annotations = Maps.newHashMap(ingress.getMetadata().getAnnotations());
         annotations.remove(SourceAnnotations.KUBECTL_KUBERNETES_IO_LAST_APPLIED_CONFIGURATION);
+        annotations.remove(SourceAnnotations.KUBERNETES_IO_CHANGE_CAUSE);
         return new IngressBuilder().withNewMetadata()
                 .withNamespace(ingress.getMetadata().getNamespace())
                 .withName(ingress.getMetadata().getName())

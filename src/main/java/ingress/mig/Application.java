@@ -80,12 +80,12 @@ public class Application {
 //        list.add("C:\\Users\\Administrator\\.kube\\cloudzcp-coinery-mainnet\\kube-config");
 //        list.add("C:\\Users\\Administrator\\.kube\\cloudzcp-dep-dev\\kube-config");
 //        list.add("C:\\Users\\Administrator\\.kube\\cloudzcp-dep-prod\\kube-config");
-        list.add("C:\\Users\\Administrator\\.kube\\cloudzcp-ens-prod\\kube-config");
+//        list.add("C:\\Users\\Administrator\\.kube\\cloudzcp-ens-prod\\kube-config");
 //        list.add("C:\\Users\\Administrator\\.kube\\cloudzcp-gdi-dev\\kube-config");
 //        list.add("C:\\Users\\Administrator\\.kube\\cloudzcp-gdi-prod\\kube-config");
 //        list.add("C:\\Users\\Administrator\\.kube\\cloudzcp-hioms-dev\\kube-config");
 //        list.add("C:\\Users\\Administrator\\.kube\\cloudzcp-hioms-prod\\kube-config");
-//        list.add("C:\\Users\\Administrator\\.kube\\cloudzcp-intrasys-dev\\kube-config");
+        list.add("C:\\Users\\Administrator\\.kube\\cloudzcp-intrasys-dev\\kube-config");
 //        list.add("C:\\Users\\Administrator\\.kube\\cloudzcp-intrasys-prod\\kube-config");
 //        list.add("C:\\Users\\Administrator\\.kube\\cloudzcp-intrasys-prod\\kube-config");
 //        list.add("C:\\Users\\Administrator\\.kube\\cloudzcp-lawai-prod\\kube-config");
