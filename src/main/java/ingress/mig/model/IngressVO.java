@@ -1,9 +1,9 @@
-package ingress.mig;
+package ingress.mig.model;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import ingress.mig.Annotation.TYPE;
+import ingress.mig.model.AnnotationMapping.TYPE;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,13 +15,19 @@ public class IngressVO {
     private String namespace;
     private String name;
     
-    private List<Annotation> annotations = new ArrayList<>();;
+    private List<AnnotationMapping> annotations = new ArrayList<>();
     
-    public void addAnnotation(Annotation annotation) {
+    public void addAnnotation(AnnotationMapping annotation) {
         annotations.add(annotation);
     }
     
     public void log(TYPE... types) {
+        boolean printLog = hasType(types);
+        
+        if (printLog == false) {
+            return;
+        }
+        
         log.info("======================================================");
         log.info("  Api version: {}", getApiVersion());
         log.info("  Ingress Name : {}/{}", getNamespace(), getName());
@@ -29,5 +35,15 @@ public class IngressVO {
         
         annotations.forEach(anno -> anno.log(types));
         log.info("------------------------------------------------------");
+        log.info("");
+    }
+    
+    public boolean hasType(TYPE... types) {
+        for (AnnotationMapping anno : annotations) {
+            if (anno.existLog(types)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
