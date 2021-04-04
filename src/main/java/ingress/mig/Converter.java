@@ -61,10 +61,18 @@ public class Converter {
                 
                 return byteA - byteB;
             };
-    
-    public Converter convert(String kubeconfig) {
-        setKubeconfig(kubeconfig);
+            
+    public Converter(String kubeconfigPath) {
+        setKubeconfig(kubeconfigPath);
         client = new DefaultKubernetesClient();
+    }
+    
+    public String getName() {
+        String currentContext = client.getConfiguration().getCurrentContext().getName();
+        return StringUtils.substringBefore(currentContext, "/");
+    }
+            
+    public Converter convert() {
         
         List<Ingress> ingresses = client.network().ingress().inAnyNamespace().list().getItems();
         
@@ -228,24 +236,34 @@ public class Converter {
     public void printBeforeAndAfterIngressYaml(TYPE... types) {
         ingressList.forEach(ingVo -> {
             if (ingVo.hasType(types)) {
-                Ingress originalIngress = ingressMap.get(ingVo);
-                Ingress migIngress = migIngressMap.get(ingVo);
-                try {
-                    originalIngress.setStatus(null);
-                    String originalIngStr = objectMapper.writeValueAsString(cleansing(originalIngress));
-                    String migIngStr = objectMapper.writeValueAsString(migIngress);
-                    ingVo.log(types);
-                    log.info("[BEFORE]");
-                    log.info(originalIngStr);
-                    log.info("---");
-                    log.info("[AFTER]");
-                    log.info(migIngStr);
-                } catch (JsonProcessingException e) {
-                    e.printStackTrace();
-                }
-                
+                String originalIngStr = getOriginalYaml(ingVo);
+                String migIngStr = getConvertedYaml(ingVo);
+                ingVo.log(types);
+                log.info("[BEFORE]");
+                log.info(originalIngStr);
+                log.info("---");
+                log.info("[AFTER]");
+                log.info(migIngStr);
             }
         });
+    }
+
+    public String getOriginalYaml(IngressVO ingVo) {
+        try {
+            return objectMapper.writeValueAsString(cleansing(ingressMap.get(ingVo)));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public String getConvertedYaml(IngressVO ingVo) {
+        try {
+            return objectMapper.writeValueAsString(migIngressMap.get(ingVo));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
     
     /**

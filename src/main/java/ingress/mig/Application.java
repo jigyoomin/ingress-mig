@@ -22,14 +22,17 @@ public class Application {
         List<Converter> converters = new ArrayList<>();
 
         kubeconfigs.forEach(config -> {
-            converters.add(new Converter().convert(config));
+            converters.add(new Converter(config).convert());
         });
 
+        
         converters.forEach(converter -> {
-            converter.printBeforeAndAfterIngressYaml(TYPE.CANYOU);
-//                      converter.log(TYPE.IGNORE);
-//                        converter.log();
+            System.out.println(converter.getName());
+//            converter.printBeforeAndAfterIngressYaml(TYPE.CANYOU);
+//            converter.log(TYPE.IGNORE);   
+//            converter.log();
         });
+        new ExcelExporter().export(converters, TYPE.CANYOU);
 //        printAnnotations(converters);
     }
 
@@ -42,17 +45,6 @@ public class Application {
         .flatMap(Collection::stream)
         .map(IngressVO::getAnnotations)
         .flatMap(Collection::stream)
-        //            .filter(anno -> {
-        //                if (ArrayUtils.isEmpty(types)) {
-        //                    return true;
-        //                } 
-        //                for (TYPE type : types) {
-        //                    if (type.equals(anno.getType())) {
-        //                        return true;
-        //                    }
-        //                }
-        //                return false;
-        //            })
         .forEach(mapping -> {
             map.computeIfAbsent(mapping.getType(), type -> Sets.newHashSet()).addAll(mapping.getSource().keySet());
         });
@@ -77,7 +69,7 @@ public class Application {
     private static List<String> kubeconfigs() {
         List<String> list = new ArrayList<>();
 
-//        list.add("C:\\Users\\Administrator\\.kube\\cloudzcp-coinery-mainnet\\kube-config");
+        list.add("C:\\Users\\earth\\.kube\\cloudzcp-coinery-mainnet\\kube-config");
 //        list.add("C:\\Users\\Administrator\\.kube\\cloudzcp-dep-dev\\kube-config");
 //        list.add("C:\\Users\\Administrator\\.kube\\cloudzcp-dep-prod\\kube-config");
 //        list.add("C:\\Users\\Administrator\\.kube\\cloudzcp-ens-prod\\kube-config");
@@ -85,7 +77,7 @@ public class Application {
 //        list.add("C:\\Users\\Administrator\\.kube\\cloudzcp-gdi-prod\\kube-config");
 //        list.add("C:\\Users\\Administrator\\.kube\\cloudzcp-hioms-dev\\kube-config");
 //        list.add("C:\\Users\\Administrator\\.kube\\cloudzcp-hioms-prod\\kube-config");
-        list.add("C:\\Users\\Administrator\\.kube\\cloudzcp-intrasys-dev\\kube-config");
+//        list.add("C:\\Users\\Administrator\\.kube\\cloudzcp-intrasys-dev\\kube-config");
 //        list.add("C:\\Users\\Administrator\\.kube\\cloudzcp-intrasys-prod\\kube-config");
 //        list.add("C:\\Users\\Administrator\\.kube\\cloudzcp-intrasys-prod\\kube-config");
 //        list.add("C:\\Users\\Administrator\\.kube\\cloudzcp-lawai-prod\\kube-config");

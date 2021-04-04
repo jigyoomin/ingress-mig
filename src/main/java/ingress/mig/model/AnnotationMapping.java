@@ -77,6 +77,38 @@ public class AnnotationMapping {
         return source.containsKey(key);
     }
     
+    public String logString(TYPE... types) {
+        StringBuffer sb = new StringBuffer();
+        if (inType(types)) {
+            Iterator<Entry<String, String>> iterator = source.entrySet().iterator();
+            for (int i = 0 ; i < source.size() ; i++) {
+                Entry<String, String> entry = iterator.next();
+                if (i == 0) {
+                    sb.append(String.format("[%s] %s: %s", getType().name(), entry.getKey(), StringUtils.abbreviate(entry.getValue(), Integer.MAX_VALUE)))
+                        .append("\n");
+                       
+                } else {
+                    sb.append(String.format("         %s: %s", entry.getKey(), StringUtils.abbreviate(entry.getValue(), Integer.MAX_VALUE)))
+                        .append("\n");
+                }
+            }
+            if (isChange()) {
+                Iterator<Entry<String, String>> tgtIterator = target.entrySet().iterator();
+                for (int i = 0 ; i < target.size() ; i++) {
+                    Entry<String, String> entry = tgtIterator.next();
+                    if (i == 0) {
+                        sb.append(String.format("         └> %s: %s", entry.getKey(), entry.getValue()))
+                            .append("\n");
+                    } else {
+                        sb.append(String.format("             %s: %s", entry.getKey(), entry.getValue()))
+                            .append("\n");
+                    }
+                }
+            }
+        }
+        return sb.toString();
+    }
+    
     public void log(TYPE... types) {
         if (inType(types)) {
             Iterator<Entry<String, String>> iterator = source.entrySet().iterator();

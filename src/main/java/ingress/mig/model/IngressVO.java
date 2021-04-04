@@ -38,6 +38,12 @@ public class IngressVO {
         log.info("");
     }
     
+    public String logString(TYPE... types) {
+        StringBuffer sb = new StringBuffer();
+        annotations.forEach(anno -> sb.append(anno.logString(types)));
+        return sb.toString();
+    }
+    
     public boolean hasType(TYPE... types) {
         for (AnnotationMapping anno : annotations) {
             if (anno.existLog(types)) {
