@@ -1,4 +1,4 @@
-package ingress.mig;
+package ingress.mig.consts;
 
 public class NginxAnnotations {
 

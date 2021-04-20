@@ -1,9 +1,7 @@
-package ingress.mig;
+package ingress.mig.view;
 
 import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
@@ -15,24 +13,35 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.CellStyle;
 
+import ingress.mig.core.Converter;
 import ingress.mig.model.AnnotationMapping.TYPE;
 import ingress.mig.model.IngressVO;
 
 public class ExcelExporter {
-
+    
+    private String filePath = "ing-mig.xls";
+    
+    
+    public ExcelExporter withFilepath(String filepath) {
+        this.filePath = filepath;
+        return this;
+    }
+    
     public void export(List<Converter> converters, TYPE... types) {
         HSSFWorkbook workbook = new HSSFWorkbook();
         
-        HSSFFont summaryFont = createSummaryFont(workbook);
+        HSSFCellStyle headerStyle = getHeaderStyle(workbook);
+        HSSFCellStyle dataStyle = getDataStyle(workbook);
         
         for (Converter converter : converters) {
-            createSheet(workbook, converter, summaryFont, types);
+            createSheet(workbook, converter, headerStyle, dataStyle, types);
         }
         
         BufferedOutputStream bos = null;
         try {
-            FileOutputStream fos = new FileOutputStream("ing-mig.xls");
+            FileOutputStream fos = new FileOutputStream(filePath);
             bos = new BufferedOutputStream(fos);
             workbook.write(bos);
             bos.close();
@@ -48,9 +57,27 @@ public class ExcelExporter {
         }
     }
     
-    private void createSheet(HSSFWorkbook workbook, Converter converter, HSSFFont summaryFont, TYPE... types) {
+    private HSSFCellStyle getDataStyle(HSSFWorkbook workbook) {
+        HSSFCellStyle style = workbook.createCellStyle();
+        style.setBorderTop(HSSFCellStyle.BORDER_THIN);
+        style.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+        style.setBorderRight(HSSFCellStyle.BORDER_THIN);
+        style.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+        style.setVerticalAlignment(CellStyle.VERTICAL_TOP);
+        style.setWrapText(true);
+        
+        HSSFFont font = workbook.createFont();
+        font.setFontName("Consolas");
+        
+        style.setFont(font);
+        
+        return style;        
+    }
+    
+    private void createSheet(HSSFWorkbook workbook, Converter converter, HSSFCellStyle headerStyle, HSSFCellStyle dataStyle, TYPE... types) {
         HSSFSheet sheet = workbook.createSheet(getSheetName(converter.getName()));
-        makeHeader(sheet, summaryFont);
+        
+        makeHeader(sheet, headerStyle);
         List<IngressVO> ingressList = converter.getIngressList();
         
         int rowNum = 1;
@@ -59,7 +86,7 @@ public class ExcelExporter {
                 continue;
             }
             
-            createDataRow(sheet, converter, ingVo, rowNum, types);
+            createDataRow(sheet, dataStyle, converter, ingVo, rowNum++, types);
         }
         
         int lastCellNum = sheet.getRow(0).getLastCellNum();
@@ -69,10 +96,8 @@ public class ExcelExporter {
         
     }
     
-    private void makeHeader(HSSFSheet sheet, HSSFFont summaryFont) {
-        HSSFRow headerRow = sheet.createRow(0);
-        
-        HSSFCellStyle style = sheet.getWorkbook().createCellStyle();
+    private HSSFCellStyle getHeaderStyle(HSSFWorkbook workbook) {
+        HSSFCellStyle style = workbook.createCellStyle();
         style.setAlignment(HSSFCellStyle.ALIGN_CENTER);
         style.setFillForegroundColor(HSSFColor.GREY_25_PERCENT.index);
         style.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
@@ -80,7 +105,19 @@ public class ExcelExporter {
         style.setBorderLeft(HSSFCellStyle.BORDER_THIN);
         style.setBorderRight(HSSFCellStyle.BORDER_THIN);
         style.setBorderBottom(HSSFCellStyle.BORDER_THIN);
-        style.setFont(summaryFont);
+        
+        HSSFFont font = workbook.createFont();
+        font.setFontName("Arial");
+        font.setFontHeightInPoints((short) 10);
+        font.setBold(true);
+        
+        style.setFont(font);
+        
+        return style;
+    }
+    
+    private void makeHeader(HSSFSheet sheet, HSSFCellStyle style) {
+        HSSFRow headerRow = sheet.createRow(0);
         
         HSSFCell name = headerRow.createCell(0);
         name.setCellStyle(style);
@@ -100,12 +137,8 @@ public class ExcelExporter {
         
     }
     
-    protected void createDataRow(HSSFSheet sheet, Converter converter, IngressVO ingVo, int rowNum, TYPE... types) {
+    protected void createDataRow(HSSFSheet sheet, HSSFCellStyle style, Converter converter, IngressVO ingVo, int rowNum, TYPE... types) {
         HSSFRow row = sheet.createRow(rowNum);
-        
-        HSSFCellStyle style = sheet.getWorkbook().createCellStyle();
-        style.setBorderLeft(HSSFCellStyle.BORDER_THIN);
-        style.setBorderRight(HSSFCellStyle.BORDER_THIN);
         
         HSSFCell nameCell = row.createCell(0);
         nameCell.setCellStyle(style);
@@ -123,32 +156,10 @@ public class ExcelExporter {
         annoCell.setCellStyle(style);
         annoCell.setCellValue(ingVo.logString(types));
         
-//        HSSFCell aveCell = row.createCell(1);
-//        aveCell.setCellStyle(style);
-//        aveCell.setCellFormula(String.format("AVERAGE(C%d:Z%d)", rowNum + 1, rowNum + 1));
-//        
-//        List<TimeValue> values = pod.getValues();
-//        TimeValue firstData = values.get(0);
-//        int index = attachPreEmptyData(row, firstData);
-//        
-//        index++;
-//        
-//        for (TimeValue tv : values) {
-//            HSSFCell cell = row.createCell(++index);
-//            cell.setCellValue(tv.getValue());
-//        }
     }
     
     private String getSheetName(String clusterName) {
         return StringUtils.substringAfter(clusterName, "cloudzcp-");
     }
 
-    private HSSFFont createSummaryFont(HSSFWorkbook workbook) {
-        HSSFFont font = workbook.createFont();
-        font.setFontName("Arial");
-        font.setFontHeightInPoints((short) 10);
-        font.setBold(true);
-        
-        return font;
-    }
 }

@@ -36,9 +36,7 @@ public class AnnotationMapping {
     public static enum TYPE {
         CHANGE, // 자동 변환 가능
         IGNORE, // 아무 영향 없으므로 무시
-        MANUAL, // 수작업 가이드
         CANYOU, // 분석 필요
-        NONEED, // 존재하지 않는 annotation 
         DELETE  // 삭제 해야 하는 것들
     }
     

@@ -8,6 +8,7 @@
 
 plugins {
     // Apply the java-library plugin to add support for Java Library
+    id 'java'
     id 'java-library'
 }
 
@@ -27,10 +28,32 @@ dependencies {
     implementation 'io.fabric8:kubernetes-client:4.10.3'
     implementation 'org.apache.poi:poi:3.13'
 
+    // CLI
+    implementation 'info.picocli:picocli:4.6.1'
+    annotationProcessor 'info.picocli:picocli-codegen:4.6.1'
+
+
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
-    
+
     compile 'ch.qos.logback:logback-classic:1.2.3'
-    
+
     compileOnly 'org.projectlombok:lombok:1.18.18'
+    annotationProcessor 'org.projectlombok:lombok:1.18.18'
+}
+
+compileJava.options.encoding = 'utf-8'
+
+jar {
+    manifest {
+        attributes 'Title': 'ingress migrator'
+        attributes 'Version': 0.1
+        attributes 'Main-Class': 'ingress.mig.command.IngMigCommand'
+    }
+    //    archiveName 'im.jar'
+    from {
+        configurations.runtimeClasspath.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
 }

@@ -1,10 +1,11 @@
-package ingress.mig;
+package ingress.mig.core;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.TreeMap;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -15,12 +16,15 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import ingress.mig.consts.NginxAnnotations;
+import ingress.mig.consts.SourceAnnotations;
 import ingress.mig.model.AnnotationMapping;
 import ingress.mig.model.AnnotationMapping.GROUP;
 import ingress.mig.model.AnnotationMapping.TYPE;
 import ingress.mig.model.IngressVO;
 import io.fabric8.kubernetes.api.model.networking.v1beta1.Ingress;
 import io.fabric8.kubernetes.api.model.networking.v1beta1.IngressBuilder;
+import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import lombok.Getter;
@@ -64,7 +68,15 @@ public class Converter {
             
     public Converter(String kubeconfigPath) {
         setKubeconfig(kubeconfigPath);
-        client = new DefaultKubernetesClient();
+        
+        this.client = new DefaultKubernetesClient();
+    }
+    
+    public Converter(String kubeconfigPath, String context) {
+        setKubeconfig(kubeconfigPath);
+        
+        Config config = Config.autoConfigure(context);
+        this.client = new DefaultKubernetesClient(config);
     }
     
     public String getName() {
@@ -73,6 +85,7 @@ public class Converter {
     }
             
     public Converter convert() {
+        log.info("Converting {} ...", getName());
         
         List<Ingress> ingresses = client.network().ingress().inAnyNamespace().list().getItems();
         
@@ -101,6 +114,7 @@ public class Converter {
             }
         });
         
+        log.info("Convert complete {}", getName());
         return this;
     }
     
@@ -267,7 +281,12 @@ public class Converter {
     }
     
     /**
-     * 실제 필요한 값만 가진 모델로 바꾼다.
+     * 실제 필요한 값만 가진 모델로 바꾼다.<br/>
+     * 아래 어노테이션들 삭제<p/>
+     * <pre>
+     * kubectl.kubernetes.io/last-applied-configuration
+     * kubernetes.io/change-cause
+     * </pre>
      * 
      * @param ingress
      * @return
@@ -313,7 +332,7 @@ public class Converter {
             String[] split = StringUtils.split(service.trim(), " ");
             String newSize = null;
             if (split.length == 2) {
-                // serviceName=XXX size=10m 인 형태
+                // serviceName=service size=10m 인 형태
                 newSize = split[1].trim().split("=")[1];
             } else {
                 // size=10m 인 형태면 이걸로 한다.
@@ -370,6 +389,22 @@ public class Converter {
     
     private void setKubeconfig(String kubeconfig) {
         System.setProperty("kubeconfig", kubeconfig);
+    }
+    
+    public void apply() {
+        Set<Entry<IngressVO,Ingress>> entrySet = migIngressMap.entrySet();
+        entrySet.forEach(entry -> {
+            IngressVO vo = entry.getKey();
+            Ingress ingress = entry.getValue();
+            try {
+                client.network().ingress().inNamespace(vo.getNamespace()).createOrReplace(ingress);
+                log.info("Ingress {} / {} configured.", vo.getNamespace(), vo.getName());
+            } catch (Exception e) {
+                log.error("Failed to apply ingress {} / {}", vo.getNamespace(), vo.getName());
+                log.error(getConvertedYaml(vo));
+                log.error("Exception trace", e);
+            }
+        });
     }
     
 }

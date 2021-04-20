@@ -1,4 +1,4 @@
-package ingress.mig;
+package ingress.mig.consts;
 
 import java.util.Arrays;
 import java.util.HashSet;
