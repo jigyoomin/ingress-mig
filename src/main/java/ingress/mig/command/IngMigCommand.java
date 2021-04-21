@@ -3,7 +3,7 @@ package ingress.mig.command;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
-@Command(name = "im", description = "ingress migration", subcommands = { DryRunCommand.class,
+@Command(name = "im", description = "ingress migration", subcommands = {
         ApplyCommand.class, PrintCommand.class, ExportCommand.class})
 public class IngMigCommand implements Runnable {
 
