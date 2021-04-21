@@ -48,6 +48,8 @@ public class Converter {
     
     private KubernetesClient client;
     
+    private boolean deleteChange = false;
+    
     private ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory().disable(Feature.WRITE_DOC_START_MARKER));
     
     private Comparator<String> timeComparator =
@@ -136,10 +138,16 @@ public class Converter {
         annotations.stream()
             .filter(mapping -> mapping.isChange())
             .forEach(mapping -> {
-            if (mapping.isChange()) {
-                newAnnotations.putAll(mapping.getTarget());
-            }
-        });
+                if (mapping.isChange()) {
+                    newAnnotations.putAll(mapping.getTarget());
+                    
+                    if (deleteChange) {
+                        mapping.getSource().keySet().forEach(key -> {
+                            newAnnotations.remove(key);
+                        });
+                    }
+                }
+            });
         
         return builder.withNewMetadata()
             .withName(ingress.getMetadata().getName())
@@ -389,6 +397,11 @@ public class Converter {
     
     private void setKubeconfig(String kubeconfig) {
         System.setProperty("kubeconfig", kubeconfig);
+    }
+    
+    public Converter withDeleteChange(boolean deleteChange) {
+        this.deleteChange = deleteChange;
+        return this;
     }
     
     public void apply() {

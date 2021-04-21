@@ -11,9 +11,9 @@ java -jar ingress-mig.jar {subcommand} {options} {kubeconfigs}
 ### example
 ```
 alias im='java -jar ingress-mig.jar'
+
 im export -t change -t canyou -f excel.xls kubeconfigs.yaml
 im print -t canyou kubeconfigs.yaml
-im dryrun kubeconfigs.yaml
 im run kubeconfigs.yaml
 ```
 
@@ -28,12 +28,12 @@ im run kubeconfigs.yaml
     - **CANYOU** : 분석 필요
 
     - **DELETE** : 삭제 해야 하는 것들
+
+* **-d** : change 한 후 원본 어노테이션 삭제 여부 (default : false)
   
 ### subcommand
 
-* **run** - 마이그레이션을 수행한다. (실제 Ingress 에 annotation 추가)
- 
-* **dryrun** - 마이그레이션 수행 전 후의 ingress yaml 을 출력 (실제로 적용되지 않음)
+* **apply** - 마이그레이션을 수행한다. (실제 Ingress 에 annotation 추가)
  
 * **print** - annotation 종류별로 출력
 

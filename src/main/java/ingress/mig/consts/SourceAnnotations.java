@@ -52,16 +52,16 @@ public class SourceAnnotations {
                 INGRESS_KUBERNETES_IO_REWRITE_TARGET,
                 INGRESS_KUBERNETES_IO_PROXY_BODY_SIZE,
                 INGRESS_KUBERNETES_IO_SSL_REDIRECT,
-                NGINX_INGRESS_KUBERNETES_IO_SSL_REDIRECT,
-                NGINX_INGRESS_KUBERNETES_IO_REWRITE_TARGET,
-                NGINX_INGRESS_KUBERNETES_IO_PROXY_BODY_SIZE,
+//                NGINX_INGRESS_KUBERNETES_IO_SSL_REDIRECT,
+//                NGINX_INGRESS_KUBERNETES_IO_REWRITE_TARGET,
+//                NGINX_INGRESS_KUBERNETES_IO_PROXY_BODY_SIZE,
                 CUSTOM_PORT,
                 PROXY_SEND_TIMEOUT,
                 SSL_REDIRECT,
                 PROXY_BODY_SIZE,
                 DEFAULT_SERVER,
-                CLIENT_HEADER_TIMEOUT,
-                KUBERNETES_IO_INGRESS_CLASS
+                CLIENT_HEADER_TIMEOUT
+//                KUBERNETES_IO_INGRESS_CLASS
                 ));
     }
 }

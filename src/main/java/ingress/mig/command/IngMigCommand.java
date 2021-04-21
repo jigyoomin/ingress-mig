@@ -4,7 +4,7 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
 @Command(name = "im", description = "ingress migration", subcommands = { DryRunCommand.class,
-        RunCommand.class, PrintCommand.class, ExportCommand.class})
+        ApplyCommand.class, PrintCommand.class, ExportCommand.class})
 public class IngMigCommand implements Runnable {
 
     @Override

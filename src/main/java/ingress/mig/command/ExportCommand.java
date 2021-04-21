@@ -22,5 +22,7 @@ public class ExportCommand extends BaseCommand {
         new ExcelExporter()
             .withFilepath(path.toAbsolutePath().toString())
             .export(converters, types);
+        
+        System.out.println("Finish export - " + path.toString());
     }
 }

@@ -30,6 +30,9 @@ public abstract class BaseCommand implements Runnable {
     @Option(names = { "-t" }, description = "CHANGE, IGNORE, CANYOU, DELETE", converter = TypeConverter.class)
     protected TYPE[] types;
     
+    @Option(names = { "-d" }, description = "Remove changed original annotations. default is false")
+    protected boolean deleteChange = false;
+    
     protected KubeConfig[] configs;
     
     @Override
@@ -46,10 +49,18 @@ public abstract class BaseCommand implements Runnable {
             List<String> contexts = config.getContexts();
             if (contexts != null && contexts.size() > 0) {
                 for (String context : config.getContexts()) {
-                    converters.add(new Converter(config.getConfigpath(), context).convert());
+                    converters.add(
+                        new Converter(config.getConfigpath(), context)
+                            .withDeleteChange(deleteChange)
+                            .convert()
+                    );
                 }
             } else {
-                converters.add(new Converter(config.getConfigpath()).convert());
+                converters.add(
+                    new Converter(config.getConfigpath())
+                        .withDeleteChange(deleteChange)
+                        .convert()
+                );
             }
         }
         
