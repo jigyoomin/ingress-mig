@@ -3,20 +3,16 @@ package ingress.mig.command;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang3.ArrayUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import ingress.mig.core.Converter;
 import ingress.mig.model.AnnotationMapping.TYPE;
-import lombok.extern.slf4j.Slf4j;
 import ingress.mig.model.KubeConfig;
 import ingress.mig.model.KubeConfigYaml;
+import lombok.extern.slf4j.Slf4j;
 import picocli.CommandLine.ITypeConverter;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
@@ -34,6 +30,9 @@ public abstract class BaseCommand implements Runnable {
     
     @Option(names = { "-d" }, description = "Remove changed original annotations. default is false")
     protected boolean deleteChange = false;
+    
+    @Option(names = { "-m", "--multiAlb" }, description = "Multi ingress controller use. default value is false")
+    protected boolean multiAlb = false;;
     
     @Option(names = { "-h" }, description = "Print usage")
     protected boolean help = false;
@@ -65,6 +64,7 @@ public abstract class BaseCommand implements Runnable {
                     converters.add(
                         new Converter(config.getConfigpath(), context)
                             .withDeleteChange(deleteChange)
+                            .withMultiAlb(multiAlb)
                             .convert()
                     );
                 }
@@ -72,6 +72,7 @@ public abstract class BaseCommand implements Runnable {
                 converters.add(
                     new Converter(config.getConfigpath())
                         .withDeleteChange(deleteChange)
+                        .withMultiAlb(multiAlb)
                         .convert()
                 );
             }

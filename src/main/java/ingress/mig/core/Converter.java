@@ -24,6 +24,8 @@ import ingress.mig.model.AnnotationMapping.TYPE;
 import ingress.mig.model.IngressVO;
 import io.fabric8.kubernetes.api.model.networking.v1beta1.Ingress;
 import io.fabric8.kubernetes.api.model.networking.v1beta1.IngressBuilder;
+import io.fabric8.kubernetes.api.model.networking.v1beta1.IngressSpec;
+import io.fabric8.kubernetes.api.model.networking.v1beta1.IngressSpecBuilder;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -49,8 +51,11 @@ public class Converter {
     private KubernetesClient client;
     
     private boolean deleteChange = false;
+    private boolean multiAlb = false;
     
-    private ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory().disable(Feature.WRITE_DOC_START_MARKER));
+    private ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory()
+            .disable(Feature.WRITE_DOC_START_MARKER)
+            .enable(Feature.MINIMIZE_QUOTES));
     
     private Comparator<String> timeComparator =
         (a, b) -> {
@@ -121,7 +126,6 @@ public class Converter {
     }
     
     private Ingress toMigIngress(IngressVO vo, Ingress ingress) {
-        IngressBuilder builder = new IngressBuilder().withSpec(ingress.getSpec());
         
 //        Map<String, String> newAnnotations = Maps.newTreeMap(ingress.getMetadata().getAnnotations());
         Map<String, String> newAnnotations = Maps.newLinkedHashMap(ingress.getMetadata().getAnnotations());
@@ -135,6 +139,7 @@ public class Converter {
                     newAnnotations.remove(key);
                 });
             });
+        
         annotations.stream()
             .filter(mapping -> mapping.isChange())
             .forEach(mapping -> {
@@ -149,7 +154,14 @@ public class Converter {
                 }
             });
         
-        return builder.withNewMetadata()
+        String ingressClass = newAnnotations.get(NginxAnnotations.INGRESS_CLASS);
+            
+        IngressSpec spec = new IngressSpecBuilder(ingress.getSpec())
+            .withIngressClassName(ingressClass)
+            .build();
+        
+        return new IngressBuilder().withSpec(spec)
+            .withNewMetadata()
             .withName(ingress.getMetadata().getName())
             .withNamespace(ingress.getMetadata().getNamespace())
             .withAnnotations(newAnnotations)
@@ -227,8 +239,13 @@ public class Converter {
         
         String prefix = srcValue.startsWith("private") ? "private" : "public";
         String nginxClass = String.format("%s-nginx", prefix);
-        if (srcValue.endsWith("alb2")) {
-            nginxClass = nginxClass + "-1";
+        
+        if (multiAlb) {
+            if (srcValue.endsWith("alb1")) {
+                nginxClass = nginxClass + "-1";
+            } else if (srcValue.endsWith("alb2")) {
+                nginxClass = nginxClass + "-2";
+            }
         }
         
         anno.putTarget(NginxAnnotations.INGRESS_CLASS, nginxClass);
@@ -401,6 +418,11 @@ public class Converter {
     
     public Converter withDeleteChange(boolean deleteChange) {
         this.deleteChange = deleteChange;
+        return this;
+    }
+    
+    public Converter withMultiAlb(boolean multiAlb) {
+        this.multiAlb = multiAlb;
         return this;
     }
     
