@@ -19,7 +19,7 @@ im apply
 
 ## Global options
 
-* **-t** : 어노테이션 타입. 입력 안하거나 복수로 사용 가능  (-t CHANGE -t IGNORE)
+* **-t** (type) : 어노테이션 타입. 입력 안하거나 복수로 사용 가능  (-t CHANGE -t IGNORE)
 
     - **CHANGE** : 자동 변환 가능
 
@@ -29,13 +29,17 @@ im apply
 
     - **DELETE** : 삭제 해야 하는 것들
 
-* **-d** : change 한 후 원본 어노테이션 삭제 여부 (default : false)
+* **-d** (delete) : change 한 후 원본 어노테이션 삭제 여부 (default : false)
+
+* **-h** (help) : Print usage
   
 ## Sub Command
 
 * **apply** - 마이그레이션을 수행한다. (실제 Ingress 에 annotation 추가)
  
 * **print** - annotation 종류별로 출력
+    - option
+      * **-i** : Ingress yaml before and after 출력
 
 * **export** - export as excel
     - option
