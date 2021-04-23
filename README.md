@@ -14,10 +14,10 @@ alias im='java -jar ingress-mig.jar'
 
 im export -t change -t canyou -f excel.xls kubeconfigs.yaml
 im print -t canyou kubeconfigs.yaml
-im run kubeconfigs.yaml
+im apply 
 ```
 
-### Global options
+## Global options
 
 * **-t** : 어노테이션 타입. 입력 안하거나 복수로 사용 가능  (-t CHANGE -t IGNORE)
 
@@ -31,7 +31,7 @@ im run kubeconfigs.yaml
 
 * **-d** : change 한 후 원본 어노테이션 삭제 여부 (default : false)
   
-### subcommand
+## Sub Command
 
 * **apply** - 마이그레이션을 수행한다. (실제 Ingress 에 annotation 추가)
  
@@ -42,11 +42,13 @@ im run kubeconfigs.yaml
         * **-f** : 출력 할 excel 파일 명 
 
   
-### kubeconfigs
+## kubeconfigs
 
 작업을 수행할 클러스터의 kubeconfig 파일과 context 를 지정한 yaml 파일
 
-#### format
+지정하지 않을 경우 동일한 위치의 kubeconfigs.yaml 파일 사용
+
+### format
 ```
 kubeconfigs:
 - configpath: C:\Users\Administrator\.kube\kube-config-dep

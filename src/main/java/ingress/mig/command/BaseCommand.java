@@ -18,8 +18,10 @@ import lombok.extern.slf4j.Slf4j;
 import ingress.mig.model.KubeConfig;
 import ingress.mig.model.KubeConfigYaml;
 import picocli.CommandLine.ITypeConverter;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Spec;
 
 @Slf4j
 public abstract class BaseCommand implements Runnable {
@@ -33,10 +35,21 @@ public abstract class BaseCommand implements Runnable {
     @Option(names = { "-d" }, description = "Remove changed original annotations. default is false")
     protected boolean deleteChange = false;
     
+    @Option(names = { "-h" }, description = "Print usage")
+    protected boolean help = false;
+    
+    @Spec
+    private CommandSpec spec;
+    
     protected KubeConfig[] configs;
     
     @Override
     public void run() {
+        if (help) {
+            spec.commandLine().usage(System.err);
+            System.exit(1);
+        }
+        
         KubeConfig[] configs = parseKubeConfigs();
         List<Converter> converters = convert(configs);
         execute(converters);
