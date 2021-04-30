@@ -23,7 +23,7 @@ public class ApplyCommand extends BaseCommand {
         if (letsgo) {
             System.out.println("ok.. pray...");
             for (Converter c : converters) {
-//                c.apply();
+                c.apply();
             }
         } else {
             System.out.println("ok canceled.");
