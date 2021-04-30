@@ -128,7 +128,9 @@ public class Converter {
     private Ingress toMigIngress(IngressVO vo, Ingress ingress) {
         
 //        Map<String, String> newAnnotations = Maps.newTreeMap(ingress.getMetadata().getAnnotations());
-        Map<String, String> newAnnotations = Maps.newLinkedHashMap(ingress.getMetadata().getAnnotations());
+        Map<String, String> newAnnotations = Maps.newLinkedHashMap();
+        Optional.ofNullable(ingress.getMetadata().getAnnotations())
+            .ifPresent(annotations -> newAnnotations.putAll(annotations));
         
         List<AnnotationMapping> annotations = vo.getAnnotations();
         // 삭제 먼저 수행
